@@ -122,19 +122,36 @@ body {
   display: flex;
   flex-direction: column;
 }
-#sky { flex: 0.6; position: relative; }
+#sky { flex: 0.6; position: relative; overflow: hidden; }
 #sun {
   position: absolute; top: 40px; right: 60px;
   width: 60px; height: 60px;
   background: radial-gradient(circle, #fff, #ffea00);
   border-radius: 50%;
   box-shadow: 0 0 50px #ffea0088;
+  z-index: 1;
 }
+
+/* BULUTLARIN HAREKETİ */
+.cloud {
+  position: absolute;
+  fill: #ffffff;
+  opacity: 0.5;
+  animation: drift linear infinite;
+  z-index: 2;
+}
+
+@keyframes drift {
+  from { left: -150px; }
+  to { left: 100%; }
+}
+
 #ground {
   flex: 0.4;
   background: linear-gradient(to bottom, var(--soil-light), var(--soil));
   position: relative;
   border-top: 4px solid #fff;
+  z-index: 3;
 }
 
 #plant-container {
@@ -147,7 +164,7 @@ body {
   z-index: 5;
 }
 
-/* SENSOR DEVICE */
+/* SENSÖR GÖRSELİ */
 #iot-probe {
   position: absolute; bottom: 0px; left: 58%;
   width: 80px; height: 120px;
@@ -192,7 +209,7 @@ body {
 #health-circle { width: 60px; height: 60px; transform: rotate(-90deg); }
 #health-text { font-size: 1.2rem; font-weight: 800; }
 
-#log { font-family: var(--mono); font-size: 0.65rem; line-height: 1.5; color: #555; max-height: 120px; overflow-y: auto; }
+#log { font-family: var(--mono); font-size: 0.65rem; line-height: 1.5; color: #555; max-height: 150px; overflow-y: auto; }
 
 /* ACTION BAR */
 #action-bar {
@@ -261,7 +278,7 @@ body {
 </div>
 
 <div id="topbar">
-  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ/ <span style="color:var(--ice-accent)">Oyun v1.0</span></h1>
+  <h1>SİMÜLASYONDAN ÖTE <span style="color:var(--ice-accent)">DİJİTAL İKİZ</span></h1>
   <div class="score-stats">
     <div class="stat-item"><div class="stat-label">Puan</div><div class="stat-val" id="score">0</div></div>
     <div class="stat-item"><div class="stat-label">Doğruluk</div><div class="stat-val" id="accuracy">0%</div></div>
@@ -273,6 +290,11 @@ body {
   <div id="virtual-env">
     <div id="sky">
       <div id="sun"></div>
+      
+      <!-- BULUTLAR -->
+      <svg class="cloud" style="top: 10%; animation-duration: 40s; animation-delay: -5s;" width="100" height="50" viewBox="0 0 120 60"><circle cx="30" cy="35" r="25"/><circle cx="60" cy="25" r="25"/><circle cx="90" cy="35" r="25"/></svg>
+      <svg class="cloud" style="top: 25%; animation-duration: 55s; animation-delay: -20s;" width="140" height="70" viewBox="0 0 120 60"><circle cx="30" cy="35" r="25"/><circle cx="60" cy="25" r="25"/><circle cx="90" cy="35" r="25"/></svg>
+      <svg class="cloud" style="top: 45%; animation-duration: 48s; animation-delay: -35s;" width="80" height="40" viewBox="0 0 120 60"><circle cx="30" cy="35" r="25"/><circle cx="60" cy="25" r="25"/><circle cx="90" cy="35" r="25"/></svg>
     </div>
     <div id="ground">
       <div id="plant-container"></div>
@@ -450,7 +472,12 @@ function handleAction(id) {
   if (isAnswered) return;
   isAnswered = true;
   const isCorrect = id === currentScenario.correct;
-  if (isCorrect) { score += 100; correctCount++; if(id === 'water') triggerRain(); showModal(true); } 
+  if (isCorrect) { 
+    score += 100; 
+    correctCount++; 
+    if(id === 'water') triggerRain(); 
+    showModal(true); 
+  } 
   else { score = Math.max(0, score - 50); showModal(false); }
 }
 
