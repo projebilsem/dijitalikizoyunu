@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dijital İkiz - TÜBİTAK 2204-B</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ice-bg: #f0f8ff;
+  --ice-primary: #0077b6;
+  --ice-secondary: #ade8f4;
+  --ice-accent: #48cae4;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --text-dark: #023e8a;
+  --text-dim: #0077b6;
+  --danger: #d00000;
+  --success: #2d6a4f;
+  --mono: 'JetBrains Mono', monospace;
+  --body: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--body);
+  background: var(--ice-bg);
+  color: var(--text-dark);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* START SCREEN (SPLASH) */
+#start-screen {
+  position: fixed; inset: 0;
+  background: linear-gradient(135deg, #caf0f8 0%, #ade8f4 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+.start-content {
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  padding: 50px;
+  border-radius: 30px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 60px rgba(0,119,182,0.15);
+  max-width: 600px;
+  animation: fadeIn 1s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.project-tag {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--ice-primary);
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  display: block;
+}
+.main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text-dark);
+  margin-bottom: 25px;
+}
+.logic-summary {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #444;
+  margin-bottom: 35px;
+  text-align: left;
+}
+#begin-btn {
+  background: var(--ice-primary);
+  color: white;
+  border: none;
+  padding: 16px 40px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 8px 25px rgba(0,119,182,0.3);
+}
+#begin-btn:hover { background: #005f8d; transform: scale(1.05); }
+
+/* TOP BAR */
+#topbar {
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 10px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+#topbar h1 { font-size: 1rem; font-weight: 800; letter-spacing: 1px; color: var(--ice-primary); }
+.score-stats { display: flex; gap: 30px; }
+.stat-item { text-align: center; }
+.stat-label { font-size: 0.6rem; text-transform: uppercase; color: var(--text-dim); }
+.stat-val { font-family: var(--mono); font-weight: 700; font-size: 1.2rem; }
+
+/* MAIN LAYOUT */
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* LEFT: VIRTUAL ENVIRONMENT */
+#virtual-env {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(to bottom, #caf0f8, #ade8f4);
+  display: flex;
+  flex-direction: column;
+}
+#sky { flex: 0.6; position: relative; }
+#sun {
+  position: absolute; top: 40px; right: 60px;
+  width: 60px; height: 60px;
+  background: radial-gradient(circle, #fff, #ffea00);
+  border-radius: 50%;
+  box-shadow: 0 0 50px #ffea0088;
+}
+#ground {
+  flex: 0.4;
+  background: linear-gradient(to bottom, #e9ecef, #dee2e6);
+  position: relative;
+  border-top: 4px solid #fff;
+}
+
+#plant-container {
+  position: absolute; bottom: 10%; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 400px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* SENSOR DEVICE (BASED ON IMAGE) */
+#iot-probe {
+  position: absolute; bottom: 0px; left: 65%;
+  width: 80px; height: 120px;
+  z-index: 10;
+}
+.probe-svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+
+/* RIGHT: MONITOR PANEL */
+#monitor {
+  width: 380px;
+  background: var(--glass);
+  backdrop-filter: blur(15px);
+  border-left: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  border: 1px solid #e9ecef;
+}
+.card-title {
+  font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+  color: var(--ice-primary); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* DASHBOARD ELEMENTS */
+.metric-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.metric-name { width: 80px; font-size: 0.7rem; font-weight: 600; color: #666; }
+.metric-bar-bg { flex: 1; height: 8px; background: #f0f2f5; border-radius: 4px; overflow: hidden; }
+.metric-bar-fill { height: 100%; width: 0%; transition: width 1s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+.metric-val { width: 40px; font-family: var(--mono); font-size: 0.75rem; text-align: right; }
+
+.health-display { display: flex; align-items: center; gap: 15px; }
+#health-circle { width: 60px; height: 60px; transform: rotate(-90deg); }
+#health-text { font-size: 1.2rem; font-weight: 800; }
+
+#log { font-family: var(--mono); font-size: 0.65rem; line-height: 1.5; color: #555; max-height: 80px; overflow-y: auto; }
+
+/* ACTION BAR */
+#action-bar {
+  background: white;
+  padding: 15px;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+#action-title { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); }
+.btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.action-btn {
+  background: var(--ice-secondary);
+  border: 1px solid var(--ice-primary);
+  color: var(--text-dark);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.action-btn:hover { background: var(--ice-primary); color: white; transform: translateY(-2px); }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* FEEDBACK OVERLAY */
+#overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.2);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+  backdrop-filter: blur(4px);
+}
+.modal {
+  background: white; padding: 30px; border-radius: 20px; text-align: center;
+  max-width: 400px; width: 90%; box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+}
+#modal-icon { font-size: 3rem; margin-bottom: 15px; }
+#modal-btn { 
+  margin-top: 20px; padding: 12px 30px; 
+  background: var(--ice-primary); color: white; border: none; 
+  border-radius: 10px; cursor: pointer; font-weight: 700;
+}
+
+/* RAIN */
+.raindrop {
+  position: absolute; width: 4px; height: 12px; background: #48cae4;
+  border-radius: 2px; animation: rain 0.8s linear forwards;
+}
+@keyframes rain { to { transform: translateY(150px); opacity: 0; } }
+</style>
+</head>
+<body>
+
+<!-- AÇILIŞ EKRANI -->
+<div id="start-screen">
+  <div class="start-content">
+    <span class="project-tag">TÜBİTAK 2204-B COĞRAFYA PROJESİ</span>
+    <h1 class="main-title">SİMÜLASYONDAN ÖTE<br><span style="color:var(--ice-primary)">DİJİTAL İKİZ</span></h1>
+    <div class="logic-summary">
+      <strong>Çalışma Mantığı:</strong><br>
+      Dijital ikiz teknolojisi, fiziksel bir nesnenin sanal ortamdaki canlı kopyasıdır. Bu simülasyonda <strong>Doğu Çınarı</strong>'nın sağlığını, IoT sensörlerden gelen gerçek zamanlı verileri (Nem, Sıcaklık ve Besin) analiz ederek yönetmelisiniz. Amacınız, bitkinin dijital ikizinden gelen veriler ışığında en doğru tarımsal müdahaleyi seçerek sürdürülebilirliği sağlamaktır.
+    </div>
+    <button id="begin-btn">Simülasyonu Başlat</button>
+  </div>
+</div>
+
+<div id="topbar">
+  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ / <span style="color:var(--ice-accent)">Oyun v1</span></h1>
+  <div class="score-stats">
+    <div class="stat-item"><div class="stat-label">Puan</div><div class="stat-val" id="score">0</div></div>
+    <div class="stat-item"><div class="stat-label">Doğruluk</div><div class="stat-val" id="accuracy">0%</div></div>
+    <div class="stat-item"><div class="stat-label">Tur</div><div class="stat-val" id="round">1/8</div></div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="virtual-env">
+    <div id="sky">
+      <div id="sun"></div>
+    </div>
+    <div id="ground">
+      <div id="plant-container"></div>
+      
+      <!-- SENSÖR GÖRSELİ (Yüklenen görsele uygun) -->
+      <div id="iot-probe">
+        <svg class="probe-svg" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+          <line x1="30" y1="85" x2="30" y2="115" stroke="#999" stroke-width="2" />
+          <line x1="50" y1="85" x2="50" y2="115" stroke="#999" stroke-width="2" />
+          <path d="M22 45 L58 45 L55 85 L25 85 Z" fill="#e0e0e0" stroke="#ccc" stroke-width="1" />
+          <path d="M10 35 Q40 5 70 35 Q75 45 40 48 Q5 45 10 35" fill="#9ce5a4" stroke="#7cbd84" stroke-width="1" />
+          <ellipse cx="40" cy="28" rx="20" ry="12" fill="#333" />
+          <circle cx="40" cy="55" r="1.5" fill="#00ff00">
+            <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
+          </circle>
+        </svg>
+      </div>
+    </div>
+    <div id="rain-zone" style="position:absolute; inset:0; pointer-events:none;"></div>
+  </div>
+
+  <div id="monitor">
+    <div class="card">
+      <div class="card-title">🔍 Birim Analizi</div>
+      <div style="font-size:0.9rem; font-weight:800; color:var(--text-dark)">Doğu Çınarı</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 Sensör Telemetrisi</div>
+      <div class="metric-row">
+        <span class="metric-name">Nem</span>
+        <div class="metric-bar-bg"><div id="bar-moist" class="metric-bar-fill" style="background:#00b4d8"></div></div>
+        <span class="metric-val" id="val-moist">0%</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name">Isı</span>
+        <div class="metric-bar-bg"><div id="bar-temp" class="metric-bar-fill" style="background:#fb8500"></div></div>
+        <span class="metric-val" id="val-temp">0°</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name">EC (Besin)</span>
+        <div class="metric-bar-bg"><div id="bar-ec" class="metric-bar-fill" style="background:#80ed99"></div></div>
+        <span class="metric-val" id="val-ec">0.0</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔋 İkiz Durumu</div>
+      <div class="health-display">
+        <svg id="health-circle" viewBox="0 0 36 36">
+          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#eee" stroke-width="3"/>
+          <path id="health-path" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#2d6a4f" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" style="transition:0.8s"/>
+        </svg>
+        <div>
+          <div id="health-text">--%</div>
+          <div id="health-label" style="font-size:0.6rem; color:#666">Analiz Bekleniyor...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📄 Olay Günlüğü</div>
+      <div id="log">Sistem başlatılıyor...</div>
+    </div>
+
+    <div class="card" style="border:1px solid var(--ice-accent); background:#f0faff">
+      <div class="card-title">⚠️ Yapay Zeka Teşhisi</div>
+      <div id="diagnosis" style="font-size:0.75rem; line-height:1.4; color:var(--text-dark); font-weight:600">--</div>
+    </div>
+  </div>
+</div>
+
+<div id="action-bar">
+  <div id="action-title">Hangi müdahale planını uygulamalıyız?</div>
+  <div class="btn-group" id="actions"></div>
+</div>
+
+<div id="overlay">
+  <div class="modal">
+    <div id="modal-icon">✅</div>
+    <h2 id="modal-title">Harika İş!</h2>
+    <p id="modal-msg" style="margin:10px 0; color:#666; font-size:0.9rem"></p>
+    <div id="modal-score" style="font-family:var(--mono); font-size:1.5rem; font-weight:bold; color:var(--ice-primary)">+100</div>
+    <button id="modal-btn">Devam Et</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════ DATA & SCENARIOS ══════════════════ */
+const SCENARIOS = [
+  { id: 1, label: "Aşırı Kuraklık", hp: 30, m: 12, t: 34, ec: 1.2, diag: "Kritik nem kaybı tespit edildi. Yaprak stomaları kapanıyor.", logs: ["- Toprak nemi eşik değerin altında.", "- Isı stresi gözlemlendi."], correct: "water", hint: "Toprak nemi %15'in altında olduğunda acil sulama şarttır." },
+  { id: 2, label: "Besin Eksikliği", hp: 60, m: 55, t: 22, ec: 0.4, diag: "Düşük EC değeri. Fotosentez verimliliği düşüyor.", logs: ["- Mineral seviyesi yetersiz.", "- Gelişim yavaşladı."], correct: "feed", hint: "EC 0.8 dS/m altına düştüğünde bitkiye besin takviyesi gerekir." },
+  { id: 3, label: "Optimal Koşullar", hp: 95, m: 62, t: 24, ec: 1.4, diag: "Dijital ikiz tüm parametrelerde mükemmel uyum sağlıyor.", logs: ["- Tüm sensörler yeşil bölgede.", "- Canlı doku stabil."], correct: "wait", hint: "Dengeli sistemlerde en iyi hamle beklemede kalmaktır." },
+  { id: 4, label: "Sıcak Çarpması", hp: 45, m: 40, t: 38, ec: 1.1, diag: "Isıl stres tespiti. Terleme oranı çok yüksek.", logs: ["- Ortam ısısı 35°C üzerine çıktı.", "- Nem hızla buharlaşıyor."], correct: "water", hint: "Sıcaklık stresi bitkinin su tüketimini artırır; sulama serinletici etki yapar." },
+  { id: 5, label: "Besin Zehirlenmesi", hp: 50, m: 70, t: 20, ec: 3.5, diag: "Kritik EC fazlalığı! Kök yanması riski yüksek.", logs: ["- Toprak tuzluluğu çok arttı.", "- Mineral birikimi tehlikeli seviyede."], correct: "flush", hint: "EC çok yüksekse 'Toprak Yıkama' yaparak tuzu uzaklaştırmalısınız." },
+  { id: 6, label: "Yabani Ot İstilası", hp: 70, m: 45, t: 23, ec: 1.0, diag: "İkincil biyotik stres. Besin rekabeti başladı.", logs: ["- Gövde çevresinde rakip bitkiler.", "- Besin emilimi engelleniyor."], correct: "clean", hint: "Yabani otlar bitkinin besinini ve suyunu çalar." },
+  { id: 7, label: "Mükemmel Denge", hp: 98, m: 58, t: 22, ec: 1.5, diag: "Dengeli büyüme periyodu.", logs: ["- Maksimum fotosentez hızı.", "- Veri akışı stabil."], correct: "wait", hint: "Zaten sağlıklı olan sisteme dokunmadan beklemede kalın." },
+  { id: 8, label: "Geç Sulama İhtiyacı", hp: 65, m: 35, t: 26, ec: 1.2, diag: "Nem seviyesi sınırda. Hafif su ihtiyacı.", logs: ["- Nem düşüş eğiliminde.", "- Günlük tüketim arttı."], correct: "water", hint: "Kritik seviye gelmeden proaktif sulama yapmak bitkiyi korur." }
+];
+
+const ACTIONS = [
+  { id: 'water', label: 'Sulama Planı', icon: '💧' },
+  { id: 'feed', label: 'Gübreleme', icon: '🧪' },
+  { id: 'clean', label: 'Ot Temizliği', icon: '✂️' },
+  { id: 'flush', label: 'Toprak Yıkama', icon: '🚿' },
+  { id: 'wait', label: 'Beklemede Kal', icon: '⏸️' }
+];
+
+/* ══════════════════ GAME LOGIC ══════════════════ */
+let score = 0, roundCount = 0, correctCount = 0, currentScenario = null, isAnswered = false;
+const $ = (id) => document.getElementById(id);
+
+function updateUI() {
+  $('score').textContent = score;
+  const acc = roundCount === 0 ? 0 : Math.round((correctCount / roundCount) * 100);
+  $('accuracy').textContent = acc + '%';
+  $('round').textContent = (roundCount + 1) + '/8';
+}
+
+function generateTreeSVG(hp) {
+  const isDead = hp < 30, isStressed = hp < 60;
+  const leafColor = isDead ? '#9c6644' : (isStressed ? '#76c893' : '#2d6a4f');
+  const trunkColor = isDead ? '#432818' : '#604439';
+  const leafOpacity = (hp / 100) * 0.9 + 0.1;
+  const sway = isDead ? 0 : 2;
+  return `<svg viewBox="0 0 200 300" width="260" height="380">
+      <ellipse cx="100" cy="285" rx="40" ry="10" fill="rgba(0,0,0,0.1)" />
+      <path d="M90 285 L110 285 L105 180 L95 180 Z" fill="${trunkColor}" />
+      <path d="M100 200 L70 150" stroke="${trunkColor}" stroke-width="6" stroke-linecap="round" />
+      <path d="M100 180 L130 130" stroke="${trunkColor}" stroke-width="5" stroke-linecap="round" />
+      <g style="animation: sway ${4 - (hp/40)}s ease-in-out infinite alternate; transform-origin: 100px 200px">
+        <style>@keyframes sway {from {transform: rotate(-${sway}deg);} to {transform: rotate(${sway}deg);}}</style>
+        <circle cx="70" cy="140" r="35" fill="${leafColor}" opacity="${leafOpacity}" />
+        <circle cx="130" cy="120" r="30" fill="${leafColor}" opacity="${leafOpacity * 0.9}" />
+        <circle cx="100" cy="90" r="40" fill="${leafColor}" opacity="${leafOpacity * 0.8}" />
+        <circle cx="100" cy="150" r="25" fill="${leafColor}" opacity="${leafOpacity}" />
+      </g></svg>`;
+}
+
+function startRound() {
+  isAnswered = false;
+  currentScenario = SCENARIOS[roundCount % SCENARIOS.length];
+  $('val-moist').textContent = currentScenario.m + '%';
+  $('bar-moist').style.width = currentScenario.m + '%';
+  $('val-temp').textContent = currentScenario.t + '°';
+  $('bar-temp').style.width = (currentScenario.t / 50 * 100) + '%';
+  $('val-ec').textContent = currentScenario.ec;
+  $('bar-ec').style.width = (currentScenario.ec / 4 * 100) + '%';
+  $('diagnosis').textContent = currentScenario.diag;
+  $('health-path').style.strokeDasharray = `${currentScenario.hp}, 100`;
+  $('health-path').style.stroke = currentScenario.hp > 70 ? '#2d6a4f' : (currentScenario.hp > 40 ? '#fb8500' : '#d00000');
+  $('health-text').textContent = currentScenario.hp + '%';
+  $('health-label').textContent = currentScenario.hp > 70 ? 'İdeal Durum' : (currentScenario.hp > 40 ? 'Stres Altında' : 'Tehlike!');
+  $('log').innerHTML = currentScenario.logs.map(l => `<div>${l}</div>`).join('');
+  $('plant-container').innerHTML = generateTreeSVG(currentScenario.hp);
+  const btnZone = $('actions');
+  btnZone.innerHTML = '';
+  ACTIONS.forEach(act => {
+    const b = document.createElement('button');
+    b.className = 'action-btn';
+    b.innerHTML = `${act.icon} ${act.label}`;
+    b.onclick = () => handleAction(act.id);
+    btnZone.appendChild(b);
+  });
+  updateUI();
+}
+
+function handleAction(id) {
+  if (isAnswered) return;
+  isAnswered = true;
+  const isCorrect = id === currentScenario.correct;
+  if (isCorrect) { score += 100; correctCount++; if(id === 'water') triggerRain(); showModal(true); } 
+  else { score = Math.max(0, score - 50); showModal(false); }
+}
+
+function triggerRain() {
+  const zone = $('rain-zone');
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const drop = document.createElement('div');
+      drop.className = 'raindrop';
+      drop.style.left = (Math.random() * 60 + 20) + '%';
+      drop.style.top = '10%';
+      zone.appendChild(drop);
+      setTimeout(() => drop.remove(), 800);
+    }, i * 50);
+  }
+}
+
+function showModal(success) {
+  $('modal-icon').textContent = success ? '✅' : '❌';
+  $('modal-title').textContent = success ? 'Mükemmel Müdahale!' : 'Yanlış Teşhis!';
+  $('modal-msg').textContent = currentScenario.hint;
+  $('modal-score').textContent = success ? '+100 Puan' : '-50 Puan';
+  $('modal-score').style.color = success ? '#2d6a4f' : '#d00000';
+  $('overlay').style.display = 'flex';
+}
+
+$('modal-btn').onclick = () => {
+  $('overlay').style.display = 'none';
+  roundCount++;
+  if (roundCount >= 8) { finishGame(); } else { startRound(); }
+};
+
+function finishGame() {
+  document.body.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--ice-bg); color:var(--text-dark); text-align:center; padding:20px;">
+      <h1 style="font-size:2.5rem; margin-bottom:10px">SİMÜLASYON TAMAMLANDI</h1>
+      <p style="font-size:1.2rem; color:var(--ice-primary); margin-bottom:20px">TÜBİTAK 2204-B Coğrafya Projesi Veri Toplama Aşaması</p>
+      <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.05)">
+        <p style="font-size:1.5rem; margin:10px 0">Final Puanı: <strong>${score}</strong></p>
+        <p>Başarı Oranı: %${Math.round((correctCount/8)*100)}</p>
+        <button onclick="location.reload()" style="margin-top:30px; padding:15px 40px; background:var(--ice-primary); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer">YENİDEN BAŞLAT</button>
+      </div>
+    </div>`;
+}
+
+// Açılış Butonu İşlevi
+$('begin-btn').onclick = () => {
+  $('start-screen').style.display = 'none';
+  startRound();
+};
+
+window.onload = () => {
+  // Oyun butona basılana kadar bekler
+};
+</script>
+</body>
+</html>
