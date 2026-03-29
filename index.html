@@ -145,7 +145,7 @@ body {
   z-index: 5;
 }
 
-/* SENSOR DEVICE (BASED ON IMAGE) */
+/* SENSOR DEVICE (MATCHING UPLOADED IMAGE) */
 #iot-probe {
   position: absolute; bottom: 0px; left: 65%;
   width: 80px; height: 120px;
@@ -259,7 +259,7 @@ body {
 </div>
 
 <div id="topbar">
-  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ / <span style="color:var(--ice-accent)">Oyun v1</span></h1>
+  <h1>DIGITAL TWIN // <span style="color:var(--ice-accent)">EASTERN PLANE</span></h1>
   <div class="score-stats">
     <div class="stat-item"><div class="stat-label">Puan</div><div class="stat-val" id="score">0</div></div>
     <div class="stat-item"><div class="stat-label">Doğruluk</div><div class="stat-val" id="accuracy">0%</div></div>
@@ -275,7 +275,7 @@ body {
     <div id="ground">
       <div id="plant-container"></div>
       
-      <!-- SENSÖR GÖRSELİ (Yüklenen görsele uygun) -->
+      <!-- SENSÖR GÖRSELİ -->
       <div id="iot-probe">
         <svg class="probe-svg" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
           <line x1="30" y1="85" x2="30" y2="115" stroke="#999" stroke-width="2" />
@@ -360,7 +360,7 @@ body {
 
 <script>
 /* ══════════════════ DATA & SCENARIOS ══════════════════ */
-const SCENARIOS = [
+const SCENARIOS_RAW = [
   { id: 1, label: "Aşırı Kuraklık", hp: 30, m: 12, t: 34, ec: 1.2, diag: "Kritik nem kaybı tespit edildi. Yaprak stomaları kapanıyor.", logs: ["- Toprak nemi eşik değerin altında.", "- Isı stresi gözlemlendi."], correct: "water", hint: "Toprak nemi %15'in altında olduğunda acil sulama şarttır." },
   { id: 2, label: "Besin Eksikliği", hp: 60, m: 55, t: 22, ec: 0.4, diag: "Düşük EC değeri. Fotosentez verimliliği düşüyor.", logs: ["- Mineral seviyesi yetersiz.", "- Gelişim yavaşladı."], correct: "feed", hint: "EC 0.8 dS/m altına düştüğünde bitkiye besin takviyesi gerekir." },
   { id: 3, label: "Optimal Koşullar", hp: 95, m: 62, t: 24, ec: 1.4, diag: "Dijital ikiz tüm parametrelerde mükemmel uyum sağlıyor.", logs: ["- Tüm sensörler yeşil bölgede.", "- Canlı doku stabil."], correct: "wait", hint: "Dengeli sistemlerde en iyi hamle beklemede kalmaktır." },
@@ -381,7 +381,18 @@ const ACTIONS = [
 
 /* ══════════════════ GAME LOGIC ══════════════════ */
 let score = 0, roundCount = 0, correctCount = 0, currentScenario = null, isAnswered = false;
+let activeScenarios = []; // Karıştırılmış senaryolar buraya gelecek
+
 const $ = (id) => document.getElementById(id);
+
+// Karıştırma Fonksiyonu (Fisher-Yates Shuffle)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 function updateUI() {
   $('score').textContent = score;
@@ -412,7 +423,9 @@ function generateTreeSVG(hp) {
 
 function startRound() {
   isAnswered = false;
-  currentScenario = SCENARIOS[roundCount % SCENARIOS.length];
+  // Karıştırılmış listeden sıradaki senaryoyu al
+  currentScenario = activeScenarios[roundCount % activeScenarios.length];
+  
   $('val-moist').textContent = currentScenario.m + '%';
   $('bar-moist').style.width = currentScenario.m + '%';
   $('val-temp').textContent = currentScenario.t + '°';
@@ -490,6 +503,8 @@ function finishGame() {
 // Açılış Butonu İşlevi
 $('begin-btn').onclick = () => {
   $('start-screen').style.display = 'none';
+  // Senaryoları her başlangıçta karıştır
+  activeScenarios = shuffleArray([...SCENARIOS_RAW]);
   startRound();
 };
 
