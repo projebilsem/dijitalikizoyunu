@@ -19,7 +19,7 @@
   --success: #2d6a4f;
   --mono: 'JetBrains Mono', monospace;
   --body: 'Inter', sans-serif;
-  --soil: #7a5230; /* Toprak Rengi */
+  --soil: #7a5230;
   --soil-light: #8b5a2b;
 }
 
@@ -132,7 +132,7 @@ body {
 }
 #ground {
   flex: 0.4;
-  background: linear-gradient(to bottom, var(--soil-light), var(--soil)); /* Toprak Rengi Geri Plan */
+  background: linear-gradient(to bottom, var(--soil-light), var(--soil));
   position: relative;
   border-top: 4px solid #fff;
 }
@@ -147,9 +147,9 @@ body {
   z-index: 5;
 }
 
-/* SENSOR DEVICE (MATCHING UPLOADED IMAGE) */
+/* SENSOR DEVICE */
 #iot-probe {
-  position: absolute; bottom: 0px; left: 58%; /* Ağaca Daha Yakın Konum */
+  position: absolute; bottom: 0px; left: 58%;
   width: 80px; height: 120px;
   z-index: 10;
 }
@@ -192,7 +192,7 @@ body {
 #health-circle { width: 60px; height: 60px; transform: rotate(-90deg); }
 #health-text { font-size: 1.2rem; font-weight: 800; }
 
-#log { font-family: var(--mono); font-size: 0.65rem; line-height: 1.5; color: #555; max-height: 80px; overflow-y: auto; }
+#log { font-family: var(--mono); font-size: 0.65rem; line-height: 1.5; color: #555; max-height: 120px; overflow-y: auto; }
 
 /* ACTION BAR */
 #action-bar {
@@ -247,20 +247,21 @@ body {
 </head>
 <body>
 
+<!-- AÇILIŞ EKRANI -->
 <div id="start-screen">
   <div class="start-content">
     <span class="project-tag">TÜBİTAK 2204-B COĞRAFYA PROJESİ</span>
     <h1 class="main-title">SİMÜLASYONDAN ÖTE<br><span style="color:var(--ice-primary)">DİJİTAL İKİZ</span></h1>
     <div class="logic-summary">
       <strong>Çalışma Mantığı:</strong><br>
-      Dijital ikiz teknolojisi, fiziksel bir nesnenin sanal ortamdaki canlı kopyasıdır. Bu simülasyonda <strong>Doğu Çınarı</strong>'nın sağlığını, IoT sensörlerden gelen gerçek zamanlı verileri (Nem, Sıcaklık ve Besin) analiz ederek yönetmelisiniz. Amacınız, bitkinin dijital ikizinden gelen veriler ışığında en doğru tarımsal müdahaleyi seçerek sürdürülebilirliği sağlamaktır.
+      Dijital ikiz teknolojisi, fiziksel bir nesnenin sanal ortamdaki canlı kopyasıdır. Bu simülasyonda <strong>Doğu Çınarı</strong>'nın sağlığını, sensörlerden gelen gerçek zamanlı verileri (Nem, Sıcaklık ve Besin) analiz ederek yönetmelisiniz. Amacınız, bitkinin dijital ikizinden gelen veriler ışığında en doğru tarımsal müdahaleyi seçerek sürdürülebilirliği sağlamaktır.
     </div>
     <button id="begin-btn">Simülasyonu Başlat</button>
   </div>
 </div>
 
 <div id="topbar">
-  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ / <span style="color:var(--ice-accent)">Oyun v1</span></h1>
+  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ/ <span style="color:var(--ice-accent)">Oyun v1.0</span></h1>
   <div class="score-stats">
     <div class="stat-item"><div class="stat-label">Puan</div><div class="stat-val" id="score">0</div></div>
     <div class="stat-item"><div class="stat-label">Doğruluk</div><div class="stat-val" id="accuracy">0%</div></div>
@@ -276,19 +277,15 @@ body {
     <div id="ground">
       <div id="plant-container"></div>
       
+      <!-- SENSÖR GÖRSELİ -->
       <div id="iot-probe">
         <svg class="probe-svg" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
           <line x1="30" y1="85" x2="30" y2="115" stroke="#999" stroke-width="2" />
           <line x1="50" y1="85" x2="50" y2="115" stroke="#999" stroke-width="2" />
-          
           <path d="M22 45 L58 45 L55 85 L25 85 Z" fill="#e0e0e0" stroke="#ccc" stroke-width="1" />
-          
           <path d="M10 35 Q40 5 70 35 Q75 45 40 48 Q5 45 10 35" fill="#9ce5a4" stroke="#7cbd84" stroke-width="1" />
-          
           <ellipse cx="40" cy="28" rx="20" ry="12" fill="#333" />
-          
           <text x="40" y="70" font-size="6" fill="#666" text-anchor="middle" font-family="var(--mono)" font-weight="bold">sensör</text>
-          
           <circle cx="40" cy="53" r="1.5" fill="#00ff00">
             <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
           </circle>
@@ -341,11 +338,6 @@ body {
       <div class="card-title">📄 Olay Günlüğü</div>
       <div id="log">Sistem başlatılıyor...</div>
     </div>
-
-    <div class="card" style="border:1px solid var(--ice-accent); background:#f0faff">
-      <div class="card-title">⚠️ Yapay Zeka Teşhisi</div>
-      <div id="diagnosis" style="font-size:0.75rem; line-height:1.4; color:var(--text-dark); font-weight:600">--</div>
-    </div>
   </div>
 </div>
 
@@ -367,21 +359,20 @@ body {
 <script>
 /* ══════════════════ DATA & SCENARIOS ══════════════════ */
 const SCENARIOS_RAW = [
-  { id: 1, label: "Aşırı Kuraklık", hp: 30, m: 12, t: 34, ec: 1.2, diag: "Kritik nem kaybı tespit edildi. Yaprak stomaları kapanıyor.", logs: ["- Toprak nemi eşik değerin altında.", "- Isı stresi gözlemlendi."], correct: "water", hint: "Toprak nemi %15'in altında olduğunda acil sulama şarttır." },
-  { id: 2, label: "Besin Eksikliği", hp: 60, m: 55, t: 22, ec: 0.4, diag: "Düşük EC değeri. Fotosentez verimliliği düşüyor.", logs: ["- Mineral seviyesi yetersiz.", "- Gelişim yavaşladı."], correct: "feed", hint: "EC 0.8 dS/m altına düştüğünde bitkiye besin takviyesi gerekir." },
-  { id: 3, label: "Optimal Koşullar", hp: 95, m: 62, t: 24, ec: 1.4, diag: "Dijital ikiz tüm parametrelerde mükemmel uyum sağlıyor.", logs: ["- Tüm sensörler yeşil bölgede.", "- Canlı doku stabil."], correct: "wait", hint: "Dengeli sistemlerde en iyi hamle beklemede kalmaktır." },
-  { id: 4, label: "Sıcak Çarpması", hp: 45, m: 40, t: 38, ec: 1.1, diag: "Isıl stres tespiti. Terleme oranı çok yüksek.", logs: ["- Ortam ısısı 35°C üzerine çıktı.", "- Nem hızla buharlaşıyor."], correct: "water", hint: "Sıcaklık stresi bitkinin su tüketimini artırır; sulama serinletici etki yapar." },
-  { id: 5, label: "Besin Zehirlenmesi", hp: 50, m: 70, t: 20, ec: 3.5, diag: "Kritik EC fazlalığı! Kök yanması riski yüksek.", logs: ["- Toprak tuzluluğu çok arttı.", "- Mineral birikimi tehlikeli seviyede."], correct: "flush", hint: "EC çok yüksekse 'Toprak Yıkama' yaparak tuzu uzaklaştırmalısınız." },
-  { id: 6, label: "Yabani Ot İstilası", hp: 70, m: 45, t: 23, ec: 1.0, diag: "İkincil biyotik stres. Besin rekabeti başladı.", logs: ["- Gövde çevresinde rakip bitkiler.", "- Besin emilimi engelleniyor."], correct: "clean", hint: "Yabani otlar bitkinin besinini ve suyunu çalar." },
-  { id: 7, label: "Mükemmel Denge", hp: 98, m: 58, t: 22, ec: 1.5, diag: "Dengeli büyüme periyodu.", logs: ["- Maksimum fotosentez hızı.", "- Veri akışı stabil."], correct: "wait", hint: "Zaten sağlıklı olan sisteme dokunmadan beklemede kalın." },
-  { id: 8, label: "Geç Sulama İhtiyacı", hp: 65, m: 35, t: 26, ec: 1.2, diag: "Nem seviyesi sınırda. Hafif su ihtiyacı.", logs: ["- Nem düşüş eğiliminde.", "- Günlük tüketim arttı."], correct: "water", hint: "Kritik seviye gelmeden proaktif sulama yapmak bitkiyi korur." }
+  { id: 1, label: "Aşırı Kuraklık", hp: 30, m: 12, t: 34, ec: 1.2, logs: ["- Toprak nemi eşik değerin altında.", "- Isı stresi gözlemlendi."], correct: "water", hint: "Toprak nemi %15'in altında olduğunda acil sulama şarttır." },
+  { id: 2, label: "Besin Eksikliği", hp: 60, m: 55, t: 22, ec: 0.4, logs: ["- Mineral seviyesi yetersiz.", "- Gelişim yavaşladı."], correct: "feed", hint: "EC 0.8 dS/m altına düştüğünde bitkiye besin takviyesi gerekir." },
+  { id: 3, label: "Optimal Koşullar", hp: 95, m: 62, t: 24, ec: 1.4, logs: ["- Tüm sensörler yeşil bölgede.", "- Canlı doku stabil."], correct: "wait", hint: "Dengeli sistemlerde en iyi hamle beklemede kalmaktır." },
+  { id: 4, label: "Sıcak Çarpması", hp: 45, m: 40, t: 38, ec: 1.1, logs: ["- Ortam ısısı 35°C üzerine çıktı.", "- Nem hızla buharlaşıyor."], correct: "water", hint: "Sıcaklık stresi bitkinin su tüketimini artırır; sulama serinletici etki yapar." },
+  { id: 5, label: "Yabani Ot İstilası", hp: 70, m: 45, t: 23, ec: 1.0, logs: ["- Gövde çevresinde rakip bitkiler.", "- Besin emilimi engelleniyor."], correct: "clean", hint: "Yabani otlar bitkinin besinini ve suyunu çalar." },
+  { id: 6, label: "Mükemmel Denge", hp: 98, m: 58, t: 22, ec: 1.5, logs: ["- Maksimum fotosentez hızı.", "- Veri akışı stabil."], correct: "wait", hint: "Zaten sağlıklı olan sisteme dokunmadan beklemede kalın." },
+  { id: 7, label: "Geç Sulama İhtiyacı", hp: 65, m: 35, t: 26, ec: 1.2, logs: ["- Nem düşüş eğiliminde.", "- Günlük tüketim arttı."], correct: "water", hint: "Kritik seviye gelmeden proaktif sulama yapmak bitkiyi korur." },
+  { id: 8, label: "Hafif Kuruma Belirtisi", hp: 55, m: 28, t: 30, ec: 1.3, logs: ["- Toprak yüzeyi kurumaya başladı.", "- Nem azalma eğiliminde."], correct: "water", hint: "Erken aşamada yapılan sulama bitkinin direncini artırır." }
 ];
 
 const ACTIONS = [
   { id: 'water', label: 'Sulama Planı', icon: '💧' },
   { id: 'feed', label: 'Gübreleme', icon: '🧪' },
   { id: 'clean', label: 'Ot Temizliği', icon: '✂️' },
-  { id: 'flush', label: 'Toprak Yıkama', icon: '🚿' },
   { id: 'wait', label: 'Beklemede Kal', icon: '⏸️' }
 ];
 
@@ -436,7 +427,6 @@ function startRound() {
   $('bar-temp').style.width = (currentScenario.t / 50 * 100) + '%';
   $('val-ec').textContent = currentScenario.ec;
   $('bar-ec').style.width = (currentScenario.ec / 4 * 100) + '%';
-  $('diagnosis').textContent = currentScenario.diag;
   $('health-path').style.strokeDasharray = `${currentScenario.hp}, 100`;
   $('health-path').style.stroke = currentScenario.hp > 70 ? '#2d6a4f' : (currentScenario.hp > 40 ? '#fb8500' : '#d00000');
   $('health-text').textContent = currentScenario.hp + '%';
