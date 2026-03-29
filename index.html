@@ -19,6 +19,8 @@
   --success: #2d6a4f;
   --mono: 'JetBrains Mono', monospace;
   --body: 'Inter', sans-serif;
+  --soil: #7a5230; /* Toprak Rengi */
+  --soil-light: #8b5a2b;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -130,7 +132,7 @@ body {
 }
 #ground {
   flex: 0.4;
-  background: linear-gradient(to bottom, #e9ecef, #dee2e6);
+  background: linear-gradient(to bottom, var(--soil-light), var(--soil)); /* Toprak Rengi Geri Plan */
   position: relative;
   border-top: 4px solid #fff;
 }
@@ -147,11 +149,11 @@ body {
 
 /* SENSOR DEVICE (MATCHING UPLOADED IMAGE) */
 #iot-probe {
-  position: absolute; bottom: 0px; left: 65%;
+  position: absolute; bottom: 0px; left: 58%; /* Ağaca Daha Yakın Konum */
   width: 80px; height: 120px;
   z-index: 10;
 }
-.probe-svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+.probe-svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); }
 
 /* RIGHT: MONITOR PANEL */
 #monitor {
@@ -245,7 +247,6 @@ body {
 </head>
 <body>
 
-<!-- AÇILIŞ EKRANI -->
 <div id="start-screen">
   <div class="start-content">
     <span class="project-tag">TÜBİTAK 2204-B COĞRAFYA PROJESİ</span>
@@ -259,7 +260,7 @@ body {
 </div>
 
 <div id="topbar">
-  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ projesi
+  <h1>SİMÜLASYONDAN ÖTE DİJİTAL İKİZ / <span style="color:var(--ice-accent)">Oyun v1</span></h1>
   <div class="score-stats">
     <div class="stat-item"><div class="stat-label">Puan</div><div class="stat-val" id="score">0</div></div>
     <div class="stat-item"><div class="stat-label">Doğruluk</div><div class="stat-val" id="accuracy">0%</div></div>
@@ -275,15 +276,20 @@ body {
     <div id="ground">
       <div id="plant-container"></div>
       
-      <!-- SENSÖR GÖRSELİ -->
       <div id="iot-probe">
         <svg class="probe-svg" viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
           <line x1="30" y1="85" x2="30" y2="115" stroke="#999" stroke-width="2" />
           <line x1="50" y1="85" x2="50" y2="115" stroke="#999" stroke-width="2" />
+          
           <path d="M22 45 L58 45 L55 85 L25 85 Z" fill="#e0e0e0" stroke="#ccc" stroke-width="1" />
+          
           <path d="M10 35 Q40 5 70 35 Q75 45 40 48 Q5 45 10 35" fill="#9ce5a4" stroke="#7cbd84" stroke-width="1" />
+          
           <ellipse cx="40" cy="28" rx="20" ry="12" fill="#333" />
-          <circle cx="40" cy="55" r="1.5" fill="#00ff00">
+          
+          <text x="40" y="70" font-size="6" fill="#666" text-anchor="middle" font-family="var(--mono)" font-weight="bold">sensör</text>
+          
+          <circle cx="40" cy="53" r="1.5" fill="#00ff00">
             <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
           </circle>
         </svg>
@@ -381,11 +387,10 @@ const ACTIONS = [
 
 /* ══════════════════ GAME LOGIC ══════════════════ */
 let score = 0, roundCount = 0, correctCount = 0, currentScenario = null, isAnswered = false;
-let activeScenarios = []; // Karıştırılmış senaryolar buraya gelecek
+let activeScenarios = [];
 
 const $ = (id) => document.getElementById(id);
 
-// Karıştırma Fonksiyonu (Fisher-Yates Shuffle)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -423,7 +428,6 @@ function generateTreeSVG(hp) {
 
 function startRound() {
   isAnswered = false;
-  // Karıştırılmış listeden sıradaki senaryoyu al
   currentScenario = activeScenarios[roundCount % activeScenarios.length];
   
   $('val-moist').textContent = currentScenario.m + '%';
@@ -439,6 +443,7 @@ function startRound() {
   $('health-label').textContent = currentScenario.hp > 70 ? 'İdeal Durum' : (currentScenario.hp > 40 ? 'Stres Altında' : 'Tehlike!');
   $('log').innerHTML = currentScenario.logs.map(l => `<div>${l}</div>`).join('');
   $('plant-container').innerHTML = generateTreeSVG(currentScenario.hp);
+  
   const btnZone = $('actions');
   btnZone.innerHTML = '';
   ACTIONS.forEach(act => {
@@ -491,7 +496,7 @@ $('modal-btn').onclick = () => {
 function finishGame() {
   document.body.innerHTML = `<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--ice-bg); color:var(--text-dark); text-align:center; padding:20px;">
       <h1 style="font-size:2.5rem; margin-bottom:10px">SİMÜLASYON TAMAMLANDI</h1>
-      <p style="font-size:1.2rem; color:var(--ice-primary); margin-bottom:20px">TÜBİTAK 2204-B Coğrafya Projesi Veri Toplama Aşaması</p>
+      <p style="font-size:1.2rem; color:var(--ice-primary); margin-bottom:20px">TÜBİTAK 2204-B Coğrafya Projesi</p>
       <div style="background:white; padding:30px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.05)">
         <p style="font-size:1.5rem; margin:10px 0">Final Puanı: <strong>${score}</strong></p>
         <p>Başarı Oranı: %${Math.round((correctCount/8)*100)}</p>
@@ -500,16 +505,10 @@ function finishGame() {
     </div>`;
 }
 
-// Açılış Butonu İşlevi
 $('begin-btn').onclick = () => {
   $('start-screen').style.display = 'none';
-  // Senaryoları her başlangıçta karıştır
   activeScenarios = shuffleArray([...SCENARIOS_RAW]);
   startRound();
-};
-
-window.onload = () => {
-  // Oyun butona basılana kadar bekler
 };
 </script>
 </body>
